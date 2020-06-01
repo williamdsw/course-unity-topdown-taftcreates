@@ -4,30 +4,53 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float speed = 5;
-    private Rigidbody2D rigidBody;
-    private Vector3 changePosition;
+    // FIELDS
 
-    private void Awake() 
+    // Config
+    [SerializeField] private float speed = 6;
+
+    // State
+    private Vector3 changePosition;
+    private bool isMoving = false;
+
+    // Cached
+    private Rigidbody2D rigidBody;
+    private Animator animator;
+
+    // MONOBEHAVIOUR FUNCTIONS
+
+    private void Awake () 
     {
-        this.rigidBody = this.GetComponent<Rigidbody2D>();    
+        this.rigidBody = this.GetComponent<Rigidbody2D> ();
+        this.animator = this.GetComponent<Animator>();
     }
 
-    // Start is called before the first frame update
-    private void Start()
+    private void Start ()
     {
         
     }
 
-    // Update is called once per frame
-    private void Update()
+    private void Update ()
     {
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical");
+
         changePosition = Vector3.zero;
-        changePosition.x = Input.GetAxisRaw ("Horizontal") * Time.deltaTime * speed;
-        changePosition.y = Input.GetAxisRaw ("Vertical") * Time.deltaTime * speed;
+        changePosition.x = horizontal * Time.deltaTime * speed;
+        changePosition.y = vertical * Time.deltaTime * speed;
+        UpdateAnimationAndMove (horizontal, vertical);
+    }
+
+    private void UpdateAnimationAndMove(float horizontal, float vertical)
+    {
         if (changePosition != Vector3.zero)
         {
-            transform.Translate (new Vector3 (changePosition.x, changePosition.y));
+            transform.Translate(new Vector3(changePosition.x, changePosition.y));
+            animator.SetFloat("moveX", horizontal);
+            animator.SetFloat("moveY", vertical);
         }
+
+        isMoving = (changePosition != Vector3.zero);
+        animator.SetBool ("isMoving", isMoving);
     }
 }
